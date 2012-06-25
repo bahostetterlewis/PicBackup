@@ -56,6 +56,8 @@ def Main():
         else:
           print ("Not backing up: " + file)
 
+  print("\n\nBackup Complete!")
+  input("Press enter to exit...")
 #run program
 if __name__ == '__main__':
   Main()
