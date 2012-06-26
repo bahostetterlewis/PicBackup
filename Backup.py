@@ -34,25 +34,25 @@ def Main():
         filePath = os.path.join(root, file)
         #file name will have the following structure
         #originalFileName '_' The day abbreviation Mon-Day-Year (all as numbers) Hour;Minute;Second from a 24 hour clock - all times/dates are when file was created
-        fileName = time.strftime("{0}_%a_%m-%d-%Y_%H;%M;%S.{1}".format(file, fileExtension), time.gmtime(os.path.getctime(filePath)))
+        newFileName = time.strftime("{0}_%a_%m-%d-%Y_%H;%M;%S.{1}".format(file, fileExtension), time.gmtime(os.path.getctime(filePath)))
         #this should be the date - allows more versitile user names for files that have underscores in them
         folderName = None
         try:
-          folderName = next(section for section in str.split(fileName, '_') if re.match(DATE_MATCH, section))#get first match of the date value for folder name
+          folderName = next(section for section in str.split(newFileName, '_') if re.match(DATE_MATCH, section))#get first match of the date value for folder name
         except:
           folderName = "Undated"
         folderPath = os.path.join(DESTINATION_PATH, folderName)
-        filePath = os.path.join(folderPath, fileName)
+        newFilePath = os.path.join(folderPath, newFileName)
 
         if not os.path.exists(filePath):#only copy when the file hasn't already been backed up
           print ("Backing up: " + file)
           try:#attempt to copy the file
-            shutil.copy2(os.path.join(root, file), filePath)
+            shutil.copy2(filePath, newFilePath)
           except IOError:#if there was an error 
             if not os.path.exists(folderPath):#the file wasn't there, make it and then redo the copy
               print("creating folder: " + folderName)
               os.makedirs(folderPath)
-              shutil.copy2(os.path.join(root, file), filePath)
+              shutil.copy2(filePath, newFilePath)
         else:
           print ("Not backing up: " + file)
 

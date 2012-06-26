@@ -13,10 +13,10 @@ import shutil
 IMAGE_MATCH_STRING = "^((jpe?g)|(bmp)|(img)|(dds)|(dng)|(gif)|(png)|(psd)|(pspimage)|(tga)|(thm)|(tif)|(yuv))$"
 #This matches most valid months - DOES NOT acct for number of days in a month
 #only allows months 1-12, and dates 1
-DATE_MATCH = "^(1[012]|0[1-9])-([12]\d|3[01]|0[1-9])-[12]\d{3}$"
+DATE_MATCH = "(\d\d-){2}\d\d\d\d"
 #get the users desktop
 #this is probably platform independant - as long as they have a desktop
-DESTINATION_PATH = os.path.join(os.path.expanduser('~'),'Desktop','My_Pics')
+DESTINATION_PATH = os.path.join(os.getcwd(), "My Pictures")
 #############################################################################################
 #                                   END CONSTANTS                                           #
 #############################################################################################
@@ -32,31 +32,26 @@ def Main():
 
       if re.match(IMAGE_MATCH_STRING, fileExtension.lower()):
         filePath = os.path.join(root, file)
+
+        if re.search(DATE_MATCH, str(filePath)):#if we are in a folder that is already organized skip
+          print("Not moving: " + file)
+          continue
+
         #file name will have the following structure
         #originalFileName '_' The day abbreviation Mon-Day-Year (all as numbers) Hour;Minute;Second from a 24 hour clock - all times/dates are when file was created
-        fileName = time.strftime("{0}_%a_%m-%d-%Y_%H;%M;%S.{1}".format(file, fileExtension), time.gmtime(os.path.getctime(filePath)))
-        #this should be the date - allows more versitile user names for files that have underscores in them
-        folderName = None
-        try:
-          folderName = next(section for section in str.split(fileName, '_') if re.match(DATE_MATCH, section))#get first match of the date value for folder name
-        except:
-          folderName = "Undated"
+        folderName = time.strftime("%m-%d-%Y", time.gmtime(os.path.getctime(filePath)))
         folderPath = os.path.join(DESTINATION_PATH, folderName)
-        filePath = os.path.join(folderPath, fileName)
-
-        if not os.path.exists(filePath):#only copy when the file hasn't already been backed up
-          print ("Backing up: " + file)
-          try:#attempt to copy the file
-            shutil.copy2(os.path.join(root, file), filePath)
-          except IOError:#if there was an error 
-            if not os.path.exists(folderPath):#the file wasn't there, make it and then redo the copy
-              print("creating folder: " + folderName)
-              os.makedirs(folderPath)
-              shutil.copy2(os.path.join(root, file), filePath)
-        else:
-          print ("Not backing up: " + file)
+        newFilePath = os.path.join(folderPath, file)
+        
+        print ("Moving: " + file)
+        try:#attempt to move the file
+          shutil.move(filePath, newFilePath)
+        except:#if there was an error 
+          if not os.path.exists(folderPath):#the file wasn't there, make it and then redo the move
+            print("creating folder: " + folderName)
+            os.makedirs(folderPath)
+            shutil.move(filePath, newFilePath)
 
 #run program
 if __name__ == '__main__':
   Main()
-
