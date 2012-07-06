@@ -44,7 +44,7 @@ def Main():
         folderPath = os.path.join(DESTINATION_PATH, folderName)
         newFilePath = os.path.join(folderPath, newFileName)
 
-        if not os.path.exists(filePath):#only copy when the file hasn't already been backed up
+        if not os.path.exists(newFilePath):#only copy when the file hasn't already been backed up
           print ("Backing up: " + file)
           try:#attempt to copy the file
             shutil.copy2(filePath, newFilePath)
@@ -56,8 +56,11 @@ def Main():
         else:
           print ("Not backing up: " + file)
 
+def Exit():
   print("\n\nBackup Complete!")
   input("Press enter to exit...")
+
 #run program
 if __name__ == '__main__':
   Main()
+  Exit()
